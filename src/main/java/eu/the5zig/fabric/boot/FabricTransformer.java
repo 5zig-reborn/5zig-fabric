@@ -23,17 +23,15 @@ import eu.the5zig.fabric.remap.MixinRemapper;
 import eu.the5zig.fabric.remap.MixinShadowPatch;
 import eu.the5zig.fabric.remap.RemapCache;
 import eu.the5zig.fabric.remap.RemapperUtils;
-import eu.the5zig.fabric.util.FileLocator;
-import eu.the5zig.fabric.util.MethodUtils;
-import eu.the5zig.fabric.util.ModFile;
+import eu.the5zig.fabric.util.*;
 import net.fabricmc.loader.api.FabricLoader;
 
 import java.io.File;
 import java.io.IOException;
-import java.lang.reflect.Method;
-import java.net.URL;
-import java.net.URLClassLoader;
-import java.security.SecureClassLoader;
+import java.net.URI;
+import java.nio.file.*;
+import java.nio.file.attribute.BasicFileAttributes;
+import java.util.HashMap;
 
 public class FabricTransformer implements Runnable {
 
@@ -51,58 +49,59 @@ public class FabricTransformer implements Runnable {
         FabricMod.LOGGER.info("Looking for 5zig installations...");
         try {
             MethodUtils.init();
+            ForcedMappings.loadMappings();
 
             ModFile mod = FileLocator.getModJar(gameDir);
-            File target;
-            if(mod == null) {
+            if (mod == null) {
                 FabricMod.LOGGER.info("No 5zig installations found. Done!");
                 return;
             }
-            if(RemapCache.checkSeal(mod.getFile())) {
-                target = mod.getFile();
-                FabricMod.LOGGER.info("Found already patched JAR.");
-            }
-            else {
-                String jarName = mod.getFile().getName().replace(".jar", "");
-                File newJar = new File(mod.getFile().getParentFile(), jarName + "-Fabric.jar");
+            String jarName = mod.getFile().getName().replace(".jar", "");
+            File newJar = new File(mod.getFile().getParentFile(), jarName + "-Fabric.jar");
 
-                String namespace = FabricLoader.getInstance().getMappingResolver().getCurrentRuntimeNamespace();
+            String namespace = FabricLoader.getInstance().getMappingResolver().getCurrentRuntimeNamespace();
 
-                FabricMod.LOGGER.info("Remapping mixins...");
-                MixinRemapper mixin = MixinRemapper.fromFile(mod.getFile());
-                mixin.setNewFile(newJar);
-                mixin.remap();
+            FabricMod.LOGGER.info("Remapping mixins...");
+            MixinRemapper mixin = MixinRemapper.fromFile(mod.getFile());
+            mixin.setNewFile(newJar);
+            mixin.remap();
 
-                FabricMod.LOGGER.info("Remapping from 'official' to '" + namespace + "'");
-                RemapperUtils.remap(newJar.toPath(), mod.getFile().toPath(), RemapperUtils.getMappings("official", namespace),
-                        FileLocator.getLibs());
+            FabricMod.LOGGER.info("Remapping from 'official' to '" + namespace + "'");
+            RemapperUtils.remap(newJar.toPath(), mod.getFile().toPath(), RemapperUtils.getMappings("official", namespace),
+                    FileLocator.getLibs());
 
-                MixinShadowPatch.patchMixins(newJar);
-                mixin.write();
+            MixinShadowPatch.patchMixins(newJar);
+            mixin.write();
 
-                target = newJar;
-               // mod.getFile().deleteOnExit();
-                RemapCache.sealJar(newJar);
-            }
-            finishBoot(target);
+            removeMixinLib(newJar);
+            ModManifest.injectManifest(mod.getVersion(), newJar);
+            // mod.getFile().deleteOnExit();
+            RemapCache.sealJar(newJar);
+
         } catch (Exception e) {
             throw new RuntimeException("Couldn't apply transformations", e);
         }
     }
 
-    /**
-     * Should be called after all configuration is done.
-     * This loads The 5zig Mod.
-     */
-    public static void finishBoot(File jarFile) {
-        try {
-            Method addUrl = FabricTransformer.class.getClassLoader().getClass().getDeclaredMethod("addURL", URL.class);
-            addUrl.setAccessible(true);
-            addUrl.invoke(FabricTransformer.class.getClassLoader(), jarFile.toURL());
-            Class handle = FabricTransformer.class.getClassLoader().loadClass("eu.the5zig.mod.asm.FabricHandle");
-            handle.getMethod("run").invoke(null);
-        } catch (Exception e) {
-            throw new RuntimeException("Fabric handle error", e);
+    private static void removeMixinLib(File file) throws IOException {
+        URI uri = URI.create("jar:file:" + file.getAbsolutePath());
+
+        try (FileSystem zipfs = FileSystems.newFileSystem(uri, new HashMap<>())) {
+            Path pathInZipfile = zipfs.getPath("org/spongepowered");
+            Files.walkFileTree(pathInZipfile, new SimpleFileVisitor<Path>() {
+
+                @Override
+                public FileVisitResult visitFile(Path file, BasicFileAttributes attrs) throws IOException {
+                    Files.delete(file);
+                    return FileVisitResult.CONTINUE;
+                }
+
+                @Override
+                public FileVisitResult postVisitDirectory(Path dir, IOException exc) throws IOException {
+                    Files.delete(dir);
+                    return FileVisitResult.CONTINUE;
+                }
+            });
         }
     }
 }

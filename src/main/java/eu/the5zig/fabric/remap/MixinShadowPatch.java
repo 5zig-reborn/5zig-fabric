@@ -36,7 +36,8 @@ import java.util.zip.ZipEntry;
 import java.util.zip.ZipFile;
 
 public class MixinShadowPatch {
-    static List<String> fieldsWithShadow = new ArrayList<>();
+    private static List<String> fieldsWithShadow = new ArrayList<>();
+    private static List<String> methodsWithOverwrite = new ArrayList<>();
 
     public static void patchMixins(File source) throws IOException {
         ZipFile file = new ZipFile(source);
@@ -73,6 +74,17 @@ public class MixinShadowPatch {
                     }
                     return super.mapFieldName(owner, name, descriptor);
                 }
+
+                @Override
+                public String mapMethodName(String owner, String name, String descriptor) {
+                    if (methodsWithOverwrite.contains(name)) {
+                        String newOwner = MethodUtils.cachedMixinName.substring(1, MethodUtils.cachedMixinName.length() - 1);
+                        newOwner = MethodUtils.mapClass(MixinRemapper.inverse, newOwner);
+                        descriptor = MethodUtils.parseArgs(MixinRemapper.inverse, descriptor);
+                        return MethodUtils.mapMethod(MixinRemapper.remapper, newOwner, name + descriptor);
+                    }
+                    return super.mapMethodName(owner, name, descriptor);
+                }
             });
             classReader.accept(mapper, ClassReader.EXPAND_FRAMES);
 
@@ -81,6 +93,7 @@ public class MixinShadowPatch {
         } finally {
             classFileInputStream.close();
             fieldsWithShadow.clear();
+            methodsWithOverwrite.clear();
         }
     }
 
@@ -93,6 +106,11 @@ public class MixinShadowPatch {
         @Override
         public FieldVisitor visitField(int access, String name, String descriptor, String signature, Object value) {
             return new ShadowFieldVisitor(name);
+        }
+
+        @Override
+        public MethodVisitor visitMethod(int access, String name, String descriptor, String signature, String[] exceptions) {
+            return new ShadowMethodVisitor(name);
         }
     }
 
@@ -109,6 +127,23 @@ public class MixinShadowPatch {
         public AnnotationVisitor visitAnnotation(String descriptor, boolean visible) {
             if (descriptor.contains("org/spongepowered/asm/mixin/Shadow")) {
                 fieldsWithShadow.add(name);
+            }
+            return super.visitAnnotation(descriptor, visible);
+        }
+    }
+
+    private static class ShadowMethodVisitor extends MethodVisitor {
+        public ShadowMethodVisitor(String name) {
+            super(Opcodes.ASM5);
+            this.name = name;
+        }
+
+        private String name;
+
+        @Override
+        public AnnotationVisitor visitAnnotation(String descriptor, boolean visible) {
+            if (descriptor.contains("org/spongepowered/asm/mixin/Overwrite")) {
+                methodsWithOverwrite.add(name);
             }
             return super.visitAnnotation(descriptor, visible);
         }

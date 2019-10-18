@@ -1,21 +1,19 @@
 {
   "schemaVersion": 1,
-  "id": "the5zigmod_installer",
-  "version": "${version}",
-  "name": "The 5zig Mod Installer",
+  "id": "the5zigmod",
+  "version": "Version here. Edited at runtime, check eu.the5zig.fabric.util.ModManifest",
+  "name": "The 5zig Mod",
   "authors": [
     "5zig Reborn Team",
     "https://github.com/5zig-reborn"
+  ],
+  "mixins": [
+    "mixins.json"
   ],
   "contact": {
     "homepage": "https://5zigreborn.eu",
     "sources": "https://github.com/5zig-reborn"
   },
   "license": "GPL-3.0-or-later",
-  "environment": "client",
-  "custom": {
-    "mm:early_risers": [
-      "eu.the5zig.fabric.boot.FabricTransformer"
-    ]
-  }
+  "environment": "client"
 }

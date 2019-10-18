@@ -1,0 +1,12 @@
+{
+  "1.14.4": {
+    "Lagg;a(Ljava/lang/String;)V": "class_3695/method_15396",
+    "Lagg;b(Ljava/lang/String;)V": "class_3695/method_15405",
+    "Ldkc;a(Llf;)V": "class_634/method_11152",
+    "Ldkc;a(Lld;)V": "class_634/method_11109",
+    "Ldkc;a(Lnf;)V": "class_634/method_11103",
+    "Ldkc;a(Lnj;)V": "class_634/method_11105",
+    "Ldkc;a(Lkv;)V": "class_634/method_11121",
+    "Lcyw;fill(IIIII)V": "class_332/fill"
+  }
+}

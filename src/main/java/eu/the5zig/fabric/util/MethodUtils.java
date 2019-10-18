@@ -65,8 +65,21 @@ public class MethodUtils {
         String args = splitRight[0];
         args = parseArgs(remapper, args);
         returnType = parseArgs(remapper, returnType);
+        String newMethod = mapMethod(remapper, className, methodInfo);
+        String newClass = mapClass(remapper, className);
+        if(newMethod == null) {
+            if(ForcedMappings.mappings.has(desc)) {
+                String mapping = ForcedMappings.mappings.get(desc).getAsString();
+                String[] data = mapping.split("/");
+                newMethod = data[1];
+                newClass = "net/minecraft/" + data[0];
+            }
+            else {
+                newMethod = methodName;
+            }
+        }
 
-        return "L" + mapClass(remapper, className) + ";" + mapMethod(remapper, className, methodInfo) + "(" + args + ")" + returnType;
+        return "L" + newClass + ";" + newMethod + "(" + args + ")" + returnType;
     }
 
     public static String parseArgs(TinyRemapper remapper, String args) {
@@ -91,6 +104,7 @@ public class MethodUtils {
                 className = cachedMixinName.substring(1, cachedMixinName.length() - 1);
                 cachedMixinName = null;
                 splitCol = splitSemi[0].split(":");
+                if(!splitCol[1].endsWith(";")) splitCol[1] = splitCol[1] + ";";
             } catch (IOException e) {
                 e.printStackTrace();
             }
@@ -103,7 +117,14 @@ public class MethodUtils {
         String fieldName = splitCol[0];
         String returnType = splitCol[1];
 
-        return "L" + mapClass(remapper, className) + ";" + mapField(remapper, className, fieldName, returnType) + ":" + parseArgs(remapper, returnType);
+        String newField = mapField(remapper, className, fieldName, returnType);
+        if(newField == null) newField = fieldName;
+
+        returnType = parseArgs(remapper, returnType);
+        if(returnType.startsWith("[") && returnType.endsWith(";"))
+            returnType = returnType.substring(0, returnType.length() - 1);
+
+        return "L" + mapClass(remapper, className) + ";" + newField + ":" + returnType;
     }
 
     public static void getAnnotatedMixinName(File file, String className) throws IOException {
