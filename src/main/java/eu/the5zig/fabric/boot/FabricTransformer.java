@@ -75,10 +75,10 @@ public class FabricTransformer implements Runnable {
 
             removeMixinLib(newJar);
             ModManifest.injectManifest(mod.getVersion(), newJar);
-            // mod.getFile().deleteOnExit();
-            RemapCache.sealJar(newJar);
-
+            mod.getFile().deleteOnExit();
+            FabricMod.success = true;
         } catch (Exception e) {
+            FabricMod.success = false;
             throw new RuntimeException("Couldn't apply transformations", e);
         }
     }

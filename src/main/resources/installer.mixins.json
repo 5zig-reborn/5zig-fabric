@@ -1,0 +1,11 @@
+{
+  "required": true,
+  "package": "eu.the5zig.fabric.boot",
+  "compatibilityLevel": "JAVA_8",
+  "mixins": [
+    "MixinTitleScreen"
+  ],
+  "injectors": {
+    "defaultRequire": 1
+  }
+}

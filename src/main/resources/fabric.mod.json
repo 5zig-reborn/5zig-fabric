@@ -1,11 +1,14 @@
 {
   "schemaVersion": 1,
-  "id": "the5zigmod_installer",
+  "id": "installer",
   "version": "${version}",
   "name": "The 5zig Mod Installer",
   "authors": [
     "5zig Reborn Team",
     "https://github.com/5zig-reborn"
+  ],
+  "mixins": [
+    "installer.mixins.json"
   ],
   "contact": {
     "homepage": "https://5zigreborn.eu",
