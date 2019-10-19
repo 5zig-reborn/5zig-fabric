@@ -11,3 +11,7 @@ the `.minecraft/mods` folder.
     * Click on `Restart Now`.
 4. If everything went correctly, The 5zig Mod should now load and the "unpatched" 5zig file should be deleted
 from your `mods` folder.
+
+## Credits
+Special thanks to @modmuss50 on [Fabric's Discord](https://discord.gg/v6v4pMv) for helping us figure out a way
+to load 5zig on Fabric.
