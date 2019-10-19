@@ -21,10 +21,11 @@ package eu.the5zig.fabric.util;
 import net.fabricmc.loader.launch.common.FabricLauncherBase;
 import net.fabricmc.loader.util.UrlConversionException;
 import net.fabricmc.loader.util.UrlUtil;
-import org.apache.commons.lang3.SystemUtils;
 
 import java.io.File;
 import java.io.IOException;
+import java.nio.file.FileSystem;
+import java.nio.file.FileSystems;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.List;
@@ -45,7 +46,11 @@ public class FileLocator {
             if(!file.isDirectory() && file.getName().endsWith(".jar")) {
                 JarFile jar = new JarFile(file);
                 String version = jar.getManifest().getMainAttributes().getValue("5zig-Version");
-                if(version != null) return new ModFile(file, version);
+                if(version != null) {
+                    jar.close();
+                    return new ModFile(file, version);
+                }
+                jar.close();
             }
         }
         return null;
@@ -61,11 +66,7 @@ public class FileLocator {
         }).filter(Files::exists).collect(Collectors.toList());
     }
 
-    public static String getAbsolutePath(File file) {
-        String path = file.getAbsolutePath();
-        if(SystemUtils.IS_OS_WINDOWS) {
-            path = path.replace("\\", "/");
-        }
-        return path.replace(" ", "%20");
+    public static FileSystem getZipFS(File file) throws IOException {
+        return FileSystems.newFileSystem(file.toPath(), null);
     }
 }

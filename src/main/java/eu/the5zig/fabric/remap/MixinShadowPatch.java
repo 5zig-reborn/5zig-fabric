@@ -18,7 +18,6 @@
 
 package eu.the5zig.fabric.remap;
 
-import eu.the5zig.fabric.util.FileLocator;
 import eu.the5zig.fabric.util.MethodUtils;
 import org.objectweb.asm.*;
 import org.objectweb.asm.commons.ClassRemapper;
@@ -27,11 +26,12 @@ import org.objectweb.asm.commons.Remapper;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
-import java.net.URI;
-import java.nio.file.*;
+import java.nio.file.FileSystem;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.StandardOpenOption;
 import java.util.ArrayList;
 import java.util.Enumeration;
-import java.util.HashMap;
 import java.util.List;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipFile;
@@ -40,20 +40,18 @@ public class MixinShadowPatch {
     private static List<String> fieldsWithShadow = new ArrayList<>();
     private static List<String> methodsWithOverwrite = new ArrayList<>();
 
-    public static void patchMixins(File source) throws IOException {
+    public static void patchMixins(File source, FileSystem zipfs) throws IOException {
         ZipFile file = new ZipFile(source);
-        URI uri = URI.create("jar:file:" + FileLocator.getAbsolutePath(source));
         Enumeration<? extends ZipEntry> elems = file.entries();
         while (elems.hasMoreElements()) {
             ZipEntry entry = elems.nextElement();
             if (entry.getName().startsWith("eu/the5zig/mod/mixin/Mixin")) {
                 MethodUtils.getAnnotatedMixinName(file, entry);
-                try (FileSystem zipfs = FileSystems.newFileSystem(uri, new HashMap<>())) {
-                    Path pathInZipfile = zipfs.getPath(entry.getName());
-                    Files.write(pathInZipfile, visitMixinClass(file, entry, entry.getName()), StandardOpenOption.TRUNCATE_EXISTING);
-                }
+                Path pathInZipfile = zipfs.getPath(entry.getName());
+                Files.write(pathInZipfile, visitMixinClass(file, entry, entry.getName()), StandardOpenOption.TRUNCATE_EXISTING);
             }
         }
+        file.close();
     }
 
     public static byte[] visitMixinClass(ZipFile jar, ZipEntry entry, String className) throws IOException {

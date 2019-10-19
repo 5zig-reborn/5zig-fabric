@@ -28,10 +28,8 @@ import net.fabricmc.loader.api.FabricLoader;
 
 import java.io.File;
 import java.io.IOException;
-import java.net.URI;
 import java.nio.file.*;
 import java.nio.file.attribute.BasicFileAttributes;
-import java.util.HashMap;
 
 public class FabricTransformer implements Runnable {
 
@@ -42,6 +40,8 @@ public class FabricTransformer implements Runnable {
      */
     @Override
     public void run() {
+        FileSystem jarFs = null;
+
         FabricMod.LOGGER.info("Preparing environment...");
         File gameDir = FabricLoader.getInstance().getGameDirectory();
         RemapCache.init(gameDir);
@@ -70,38 +70,44 @@ public class FabricTransformer implements Runnable {
             RemapperUtils.remap(newJar.toPath(), mod.getFile().toPath(), RemapperUtils.getMappings("official", namespace),
                     FileLocator.getLibs());
 
-            MixinShadowPatch.patchMixins(newJar);
-            mixin.write();
+            jarFs = FileSystems.newFileSystem(newJar.toPath(), null);
 
-            removeMixinLib(newJar);
-            ModManifest.injectManifest(mod.getVersion(), newJar);
+            mixin.write(jarFs);
+            MixinShadowPatch.patchMixins(newJar, jarFs);
+
+            removeMixinLib(jarFs);
+            ModManifest.injectManifest(mod.getVersion(), jarFs);
             mod.getFile().deleteOnExit();
             FabricMod.success = true;
         } catch (Exception e) {
             FabricMod.success = false;
             throw new RuntimeException("Couldn't apply transformations", e);
+        } finally {
+            if (jarFs != null) {
+                try {
+                    jarFs.close();
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+            }
         }
     }
 
-    private static void removeMixinLib(File file) throws IOException {
-        URI uri = URI.create("jar:file:" + FileLocator.getAbsolutePath(file));
+    private static void removeMixinLib(FileSystem zipfs) throws IOException {
+        Path pathInZipfile = zipfs.getPath("org/spongepowered");
+        Files.walkFileTree(pathInZipfile, new SimpleFileVisitor<Path>() {
 
-        try (FileSystem zipfs = FileSystems.newFileSystem(uri, new HashMap<>())) {
-            Path pathInZipfile = zipfs.getPath("org/spongepowered");
-            Files.walkFileTree(pathInZipfile, new SimpleFileVisitor<Path>() {
+            @Override
+            public FileVisitResult visitFile(Path file, BasicFileAttributes attrs) throws IOException {
+                Files.delete(file);
+                return FileVisitResult.CONTINUE;
+            }
 
-                @Override
-                public FileVisitResult visitFile(Path file, BasicFileAttributes attrs) throws IOException {
-                    Files.delete(file);
-                    return FileVisitResult.CONTINUE;
-                }
-
-                @Override
-                public FileVisitResult postVisitDirectory(Path dir, IOException exc) throws IOException {
-                    Files.delete(dir);
-                    return FileVisitResult.CONTINUE;
-                }
-            });
-        }
+            @Override
+            public FileVisitResult postVisitDirectory(Path dir, IOException exc) throws IOException {
+                Files.delete(dir);
+                return FileVisitResult.CONTINUE;
+            }
+        });
     }
 }

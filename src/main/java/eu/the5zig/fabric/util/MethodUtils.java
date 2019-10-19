@@ -138,6 +138,7 @@ public class MethodUtils {
         } finally {
             classFileInputStream.close();
         }
+        jar.close();
     }
 
     public static void getAnnotatedMixinName(ZipFile jar, ZipEntry entry) throws IOException {

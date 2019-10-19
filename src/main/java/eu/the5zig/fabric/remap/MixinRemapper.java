@@ -21,17 +21,16 @@ package eu.the5zig.fabric.remap;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
-import eu.the5zig.fabric.util.FileLocator;
 import eu.the5zig.fabric.util.MethodUtils;
 import net.fabricmc.loader.api.FabricLoader;
 import net.fabricmc.tinyremapper.IMappingProvider;
 import net.fabricmc.tinyremapper.TinyRemapper;
 
 import java.io.*;
-import java.net.URI;
 import java.nio.file.FileSystem;
-import java.nio.file.*;
-import java.util.HashMap;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.StandardOpenOption;
 import java.util.Map;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipFile;
@@ -50,8 +49,8 @@ public class MixinRemapper {
         ZipInputStream zip = new ZipInputStream(is);
         ZipEntry entry;
         MixinRemapper res = null;
-        while((entry = zip.getNextEntry()) != null) {
-            if(entry.getName().endsWith(".refmap.json")) {
+        while ((entry = zip.getNextEntry()) != null) {
+            if (entry.getName().endsWith(".refmap.json")) {
                 InputStream entryData = zipFile.getInputStream(entry);
                 JsonObject json = new JsonParser().parse(new InputStreamReader(entryData, "UTF-8")).getAsJsonObject();
                 entryData.close();
@@ -62,6 +61,7 @@ public class MixinRemapper {
         }
         zip.close();
         is.close();
+        zipFile.close();
         return res;
     }
 
@@ -78,11 +78,11 @@ public class MixinRemapper {
     public void remap() {
         JsonObject notchData = json.getAsJsonObject("data").getAsJsonObject("notch");
         JsonObject newData = new JsonObject();
-        for(Map.Entry<String, JsonElement> entry : notchData.entrySet()) {
+        for (Map.Entry<String, JsonElement> entry : notchData.entrySet()) {
             String containerClass = entry.getKey();
             JsonObject toRemap = entry.getValue().getAsJsonObject();
             JsonObject newObj = new JsonObject();
-            for(Map.Entry<String, JsonElement> entry1 : toRemap.entrySet()) {
+            for (Map.Entry<String, JsonElement> entry1 : toRemap.entrySet()) {
                 String methodName = entry1.getKey();
                 String obfuscated = entry1.getValue().getAsString();
                 String remap = obfuscated.contains(":") ? MethodUtils.remapField(remapper, obfuscated, containerClass, jarFile)
@@ -105,12 +105,8 @@ public class MixinRemapper {
         this.newFile = newFile;
     }
 
-    public void write() throws IOException {
-        URI uri = URI.create("jar:file:" + FileLocator.getAbsolutePath(newFile));
-
-        try (FileSystem zipfs = FileSystems.newFileSystem(uri, new HashMap<>())) {
-            Path pathInZipfile = zipfs.getPath("mixins.refmap.json");
-            Files.write(pathInZipfile, newJson.toString().getBytes("UTF-8"), StandardOpenOption.TRUNCATE_EXISTING);
-        }
+    public void write(FileSystem zipfs) throws IOException {
+        Path pathInZipfile = zipfs.getPath("mixins.refmap.json");
+        Files.write(pathInZipfile, newJson.toString().getBytes("UTF-8"), StandardOpenOption.TRUNCATE_EXISTING);
     }
 }
