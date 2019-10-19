@@ -36,7 +36,7 @@ public class ModManifest {
         String data = IOUtils.toString(ModManifest.class.getResourceAsStream("/out.mod.json"), "UTF-8");
         JsonObject json = new JsonParser().parse(data).getAsJsonObject();
         json.addProperty("version", version);
-        URI uri = URI.create("jar:file:" + file.getAbsolutePath());
+        URI uri = URI.create("jar:file:" + FileLocator.getAbsolutePath(file));
 
         try (FileSystem zipfs = FileSystems.newFileSystem(uri, new HashMap<>())) {
             Path pathInZipfile = zipfs.getPath("fabric.mod.json");

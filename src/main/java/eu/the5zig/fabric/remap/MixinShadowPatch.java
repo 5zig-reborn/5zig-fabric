@@ -18,6 +18,7 @@
 
 package eu.the5zig.fabric.remap;
 
+import eu.the5zig.fabric.util.FileLocator;
 import eu.the5zig.fabric.util.MethodUtils;
 import org.objectweb.asm.*;
 import org.objectweb.asm.commons.ClassRemapper;
@@ -41,7 +42,7 @@ public class MixinShadowPatch {
 
     public static void patchMixins(File source) throws IOException {
         ZipFile file = new ZipFile(source);
-        URI uri = URI.create("jar:file:" + source.getAbsolutePath());
+        URI uri = URI.create("jar:file:" + FileLocator.getAbsolutePath(source));
         Enumeration<? extends ZipEntry> elems = file.entries();
         while (elems.hasMoreElements()) {
             ZipEntry entry = elems.nextElement();

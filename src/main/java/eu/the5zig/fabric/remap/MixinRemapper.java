@@ -21,6 +21,7 @@ package eu.the5zig.fabric.remap;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
+import eu.the5zig.fabric.util.FileLocator;
 import eu.the5zig.fabric.util.MethodUtils;
 import net.fabricmc.loader.api.FabricLoader;
 import net.fabricmc.tinyremapper.IMappingProvider;
@@ -105,7 +106,7 @@ public class MixinRemapper {
     }
 
     public void write() throws IOException {
-        URI uri = URI.create("jar:file:" + newFile.getAbsolutePath());
+        URI uri = URI.create("jar:file:" + FileLocator.getAbsolutePath(newFile));
 
         try (FileSystem zipfs = FileSystems.newFileSystem(uri, new HashMap<>())) {
             Path pathInZipfile = zipfs.getPath("mixins.refmap.json");

@@ -84,7 +84,7 @@ public class FabricTransformer implements Runnable {
     }
 
     private static void removeMixinLib(File file) throws IOException {
-        URI uri = URI.create("jar:file:" + file.getAbsolutePath());
+        URI uri = URI.create("jar:file:" + FileLocator.getAbsolutePath(file));
 
         try (FileSystem zipfs = FileSystems.newFileSystem(uri, new HashMap<>())) {
             Path pathInZipfile = zipfs.getPath("org/spongepowered");

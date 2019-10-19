@@ -21,6 +21,7 @@ package eu.the5zig.fabric.util;
 import net.fabricmc.loader.launch.common.FabricLauncherBase;
 import net.fabricmc.loader.util.UrlConversionException;
 import net.fabricmc.loader.util.UrlUtil;
+import org.apache.commons.lang3.SystemUtils;
 
 import java.io.File;
 import java.io.IOException;
@@ -58,5 +59,13 @@ public class FileLocator {
                 throw new RuntimeException(e);
             }
         }).filter(Files::exists).collect(Collectors.toList());
+    }
+
+    public static String getAbsolutePath(File file) {
+        String path = file.getAbsolutePath();
+        if(SystemUtils.IS_OS_WINDOWS) {
+            path = path.replace("\\", "/");
+        }
+        return path;
     }
 }
