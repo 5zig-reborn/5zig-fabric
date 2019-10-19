@@ -66,6 +66,6 @@ public class FileLocator {
         if(SystemUtils.IS_OS_WINDOWS) {
             path = path.replace("\\", "/");
         }
-        return path;
+        return path.replace(" ", "%20");
     }
 }
