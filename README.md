@@ -3,7 +3,7 @@
 This makes loading 5zig on Fabric possible by patching the JAR at runtime.
 
 ## Usage
-1. Download the project from the [Releases](releases) tab.
+1. Download the project from the [Releases](https://github.com/5zig-reborn/5zig-fabric/releases) tab.
 2. Put the file you downloaded **and** the relative [5zig](https://github.com/5zig-reborn/The-5zig-Mod) file in
 the `.minecraft/mods` folder.
 3. Run Minecraft.
