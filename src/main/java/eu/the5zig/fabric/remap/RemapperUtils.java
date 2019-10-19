@@ -20,7 +20,6 @@ package eu.the5zig.fabric.remap;
 
 import net.fabricmc.loader.launch.common.MappingConfiguration;
 import net.fabricmc.loader.util.mappings.TinyRemapperMappingsHelper;
-import net.fabricmc.mappings.MappingsProvider;
 import net.fabricmc.tinyremapper.IMappingProvider;
 import net.fabricmc.tinyremapper.OutputConsumerPath;
 import net.fabricmc.tinyremapper.TinyRemapper;

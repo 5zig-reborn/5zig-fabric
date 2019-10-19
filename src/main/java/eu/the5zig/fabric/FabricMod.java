@@ -20,19 +20,18 @@ package eu.the5zig.fabric;
 
 import eu.the5zig.fabric.util.InstallerI18n;
 import net.fabricmc.api.ModInitializer;
+import net.fabricmc.loader.FabricLoader;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.gui.screen.ConfirmScreen;
 import net.minecraft.client.gui.screen.Screen;
-import net.minecraft.client.resource.language.I18n;
 import net.minecraft.text.LiteralText;
-import net.minecraft.text.TranslatableText;
 import net.minecraft.util.Formatting;
+import org.apache.logging.log4j.Logger;
 
-import java.util.logging.Logger;
 
 public class FabricMod implements ModInitializer {
 
-    public static final Logger LOGGER = Logger.getLogger("5zig <-> Fabric");
+    public static final Logger LOGGER = FabricLoader.INSTANCE.getLogger();
     public static boolean success;
     private static boolean shown;
 
