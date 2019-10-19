@@ -3,17 +3,22 @@
   "id": "the5zigmod",
   "version": "Version here. Edited at runtime, check eu.the5zig.fabric.util.ModManifest",
   "name": "The 5zig Mod",
+  "description": "All-in-one modification for Minecraft.",
   "authors": [
-    "5zig Reborn Team",
-    "https://github.com/5zig-reborn"
+    "5zig Reborn Team"
   ],
   "mixins": [
     "mixins.json"
   ],
   "contact": {
     "homepage": "https://5zigreborn.eu",
-    "sources": "https://github.com/5zig-reborn"
+    "sources": "https://github.com/5zig-reborn",
+    "issues": "https://github.com/5zig-reborn/The-5zig-Mod/issues"
   },
   "license": "GPL-3.0-or-later",
-  "environment": "client"
+  "environment": "client",
+  "icon": "images/5zig-icon.png",
+  "custom": {
+    "modmenu:clientsideOnly": true
+  }
 }
