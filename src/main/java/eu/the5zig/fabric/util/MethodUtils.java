@@ -170,7 +170,6 @@ public class MethodUtils {
         }
         return null;
     }
-
     public static String mapMethod(TinyRemapper remapper, String className, String desc) {
         String id = className + "/" + desc;
         try {

@@ -72,7 +72,9 @@ public class MixinRemapper {
         String namespace = FabricLoader.getInstance().getMappingResolver().getCurrentRuntimeNamespace();
         IMappingProvider provider = RemapperUtils.getMappings("official", namespace);
         remapper = TinyRemapper.newRemapper().withMappings(provider).build();
+        remapper.getRemapper(); // Refresh
         inverse = TinyRemapper.newRemapper().withMappings(RemapperUtils.getMappings(namespace, "official")).build();
+        inverse.getRemapper(); // Refresh
     }
 
     public void remap() {

@@ -27,9 +27,9 @@ public class InstallerI18n {
     private static ResourceBundle strings;
 
     public static void init() {
+        try {
         Locale currentLocale = Locale.forLanguageTag(MinecraftClient.getInstance().getLanguageManager().getLanguage()
                 .getCode().replace('_', '-'));
-        try {
             strings = ResourceBundle.getBundle("lang.language", currentLocale);
         } catch(Exception e) {
             strings = ResourceBundle.getBundle("lang.language", Locale.US);

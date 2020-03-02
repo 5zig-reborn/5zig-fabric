@@ -19,8 +19,8 @@ dependencies {
     modCompile "net.fabricmc:fabric-loader:${project.loader_version}"
     modCompile "net.fabricmc.fabric-api:fabric-api:${project.fabric_version}"
 
-    modCompile 'com.github.Chocohead:Fabric-ASM:9af0ebe992'
-    include 'com.github.Chocohead:Fabric-ASM:9af0ebe992'
+    modCompile 'com.github.Chocohead:Fabric-ASM:v2.0'
+    include 'com.github.Chocohead:Fabric-ASM:v2.0'
 }
 
 processResources {
