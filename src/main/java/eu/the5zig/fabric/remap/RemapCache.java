@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2019 5zig Reborn
+ * Copyright (c) 2019-2020 5zig Reborn
  *
  * This file is part of 5zig-fabric
  * 5zig-fabric is free software: you can redistribute it and/or modify
