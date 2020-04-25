@@ -1,6 +1,11 @@
 # 5zig -> Fabric patcher
+[![Build Status](https://travis-ci.org/5zig-reborn/5zig-fabric.svg?branch=master)](https://travis-ci.org/5zig-reborn/5zig-fabric)
 
 This makes loading 5zig on Fabric possible by patching the JAR at runtime.
+
+### Note about OptiFabric
+When patching a JAR with this mod, please remove OptiFabric from your mods.  
+You can add it later once the patched JAR is created.
 
 ## Usage
 1. Download the project from the [Releases](https://github.com/5zig-reborn/5zig-fabric/releases) tab.
