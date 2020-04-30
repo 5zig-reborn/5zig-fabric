@@ -95,6 +95,9 @@ public class MethodUtils {
     }
 
     public static String remapField(TinyRemapper remapper, String desc, String containerClass, File file) {
+        if(ForcedMappings.mappings.has(desc)) {
+            return ForcedMappings.mappings.get(desc).getAsString();
+        }
         String[] splitSemi = desc.split(";", 2);
         String className = null;
         String[] splitCol = null;
