@@ -8,6 +8,7 @@
     "5zig Reborn Team"
   ],
   "mixins": [
+    "mixins.the5zigmod.optional.json",
     "mixins.json"
   ],
   "contact": {
