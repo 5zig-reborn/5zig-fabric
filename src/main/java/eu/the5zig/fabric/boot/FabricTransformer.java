@@ -84,7 +84,6 @@ public class FabricTransformer implements Runnable {
 
             removeMixinLib(jarFs);
             ModManifest.injectManifest(mod.getVersion(), jarFs);
-            mod.getFile().deleteOnExit();
             System.out.println("Remap done.");
         } catch (Exception e) {
             e.printStackTrace();
