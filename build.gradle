@@ -85,4 +85,5 @@ tasks.withType(JavaCompile) {
 
 jar {
     from "LICENSE"
+    manifest.attributes('Main-Class': application.mainClassName)
 }
