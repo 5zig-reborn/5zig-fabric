@@ -18,16 +18,12 @@
 
 package eu.the5zig.fabric.util;
 
-import net.fabricmc.loader.launch.common.FabricLauncherBase;
-import net.fabricmc.loader.util.UrlConversionException;
-import net.fabricmc.loader.util.UrlUtil;
-
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.FileSystem;
 import java.nio.file.FileSystems;
-import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Objects;
 import java.util.jar.JarFile;
@@ -56,14 +52,8 @@ public class FileLocator {
         return null;
     }
 
-    public static List<Path> getLibs() {
-        return FabricLauncherBase.getLauncher().getLoadTimeDependencies().stream().map(url -> {
-            try {
-                return UrlUtil.asPath(url);
-            } catch (UrlConversionException e) {
-                throw new RuntimeException(e);
-            }
-        }).filter(Files::exists).collect(Collectors.toList());
+    public static List<Path> getLibs(String[] args) {
+        return Arrays.stream(args).map(File::new).filter(File::exists).map(File::toPath).collect(Collectors.toList());
     }
 
     public static FileSystem getZipFS(File file) throws IOException {

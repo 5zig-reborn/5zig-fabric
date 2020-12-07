@@ -16,19 +16,21 @@
  * along with 5zig-fabric.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package eu.the5zig.fabric.boot;
+package eu.the5zig.fabric;
 
-import eu.the5zig.fabric.FabricMod;
-import net.minecraft.client.gui.screen.TitleScreen;
-import org.spongepowered.asm.mixin.Mixin;
-import org.spongepowered.asm.mixin.injection.At;
-import org.spongepowered.asm.mixin.injection.Inject;
-import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
+import eu.the5zig.fabric.boot.FabricTransformer;
+import eu.the5zig.fabric.builtin.MappingLoader;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
-@Mixin(TitleScreen.class)
-public class MixinTitleScreen {
-    @Inject(method = "init", at = @At("RETURN"))
-    public void showConfirm(CallbackInfo _ci) {
-        FabricMod.showConfirm();
+public class TransformerMain {
+    public static MappingLoader mappings;
+    public static final Logger LOGGER = LogManager.getLogger("5zig-Fabric");
+
+    public static void main(String[] args) {
+        mappings = new MappingLoader();
+        new FabricTransformer(args, "1.15.2").run();
+        System.out.println("Work done.");
+        System.exit(0);
     }
 }

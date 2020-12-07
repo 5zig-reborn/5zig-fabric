@@ -20,7 +20,6 @@ package eu.the5zig.fabric.util;
 
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
-import net.minecraft.MinecraftVersion;
 import org.apache.commons.io.IOUtils;
 
 import java.io.IOException;
@@ -28,10 +27,9 @@ import java.io.IOException;
 public class ForcedMappings {
     public static JsonObject mappings;
 
-    public static void loadMappings() throws IOException {
+    public static void loadMappings(String version) throws IOException {
         String data = IOUtils.toString(ForcedMappings.class.getResourceAsStream("/forcedMappings.json"), "UTF-8");
         JsonObject json = new JsonParser().parse(data).getAsJsonObject();
-        String version = MinecraftVersion.create().getName();
         JsonObject mappings = json.getAsJsonObject(version);
         ForcedMappings.mappings = mappings;
     }

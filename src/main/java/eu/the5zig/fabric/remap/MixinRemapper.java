@@ -21,8 +21,8 @@ package eu.the5zig.fabric.remap;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
+import eu.the5zig.fabric.TransformerMain;
 import eu.the5zig.fabric.util.MethodUtils;
-import net.fabricmc.loader.api.FabricLoader;
 import net.fabricmc.tinyremapper.IMappingProvider;
 import net.fabricmc.tinyremapper.TinyRemapper;
 
@@ -69,7 +69,7 @@ public class MixinRemapper {
         this.json = json;
         this.newJson = new JsonObject();
 
-        String namespace = FabricLoader.getInstance().getMappingResolver().getCurrentRuntimeNamespace();
+        String namespace = TransformerMain.mappings.getTargetNamespace();
         IMappingProvider provider = RemapperUtils.getMappings("official", namespace);
         remapper = TinyRemapper.newRemapper().withMappings(provider).build();
         remapper.getRemapper(); // Refresh

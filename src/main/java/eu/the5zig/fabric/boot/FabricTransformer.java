@@ -18,13 +18,12 @@
 
 package eu.the5zig.fabric.boot;
 
-import eu.the5zig.fabric.FabricMod;
+import eu.the5zig.fabric.TransformerMain;
 import eu.the5zig.fabric.remap.MixinRemapper;
 import eu.the5zig.fabric.remap.MixinShadowPatch;
 import eu.the5zig.fabric.remap.RemapCache;
 import eu.the5zig.fabric.remap.RemapperUtils;
 import eu.the5zig.fabric.util.*;
-import net.fabricmc.loader.api.FabricLoader;
 
 import java.io.File;
 import java.io.IOException;
@@ -32,6 +31,13 @@ import java.nio.file.*;
 import java.nio.file.attribute.BasicFileAttributes;
 
 public class FabricTransformer implements Runnable {
+    private final String mcVersion;
+    private final String[] args;
+
+    public FabricTransformer(String[] args, String mcVersion) {
+        this.args = args;
+        this.mcVersion = mcVersion;
+    }
 
     /**
      * This is called every time the game boots.
@@ -41,34 +47,35 @@ public class FabricTransformer implements Runnable {
     @Override
     public void run() {
         FileSystem jarFs = null;
-
-        FabricMod.LOGGER.info("Preparing environment...");
-        File gameDir = FabricLoader.getInstance().getGameDirectory();
+        System.out.println("abc");
+        System.out.println("Preparing environment...");
+        File gameDir = new File("").getAbsoluteFile();
         RemapCache.init(gameDir);
 
-        FabricMod.LOGGER.info("Looking for 5zig installations...");
+        System.out.println("Looking for 5zig installations...");
         try {
             MethodUtils.init();
-            ForcedMappings.loadMappings();
+            ForcedMappings.loadMappings(mcVersion);
 
             ModFile mod = FileLocator.getModJar(gameDir);
             if (mod == null) {
-                FabricMod.LOGGER.info("No 5zig installations found. Done!");
+                System.out.println("No 5zig installations found. Done!");
                 return;
             }
             String jarName = mod.getFile().getName().replace(".jar", "");
             File newJar = new File(mod.getFile().getParentFile(), jarName + "-Fabric.jar");
 
-            String namespace = FabricLoader.getInstance().getMappingResolver().getCurrentRuntimeNamespace();
+            String namespace = TransformerMain.mappings.getTargetNamespace();
 
-            FabricMod.LOGGER.info("Remapping mixins...");
+            System.out.println("Remapping mixins...");
             MixinRemapper mixin = MixinRemapper.fromFile(mod.getFile());
             mixin.setNewFile(newJar);
             mixin.remap();
 
-            FabricMod.LOGGER.info("Remapping from 'official' to '" + namespace + "'");
-            RemapperUtils.remap(newJar.toPath(), mod.getFile().toPath(), RemapperUtils.getMappings("official", namespace),
-                    FileLocator.getLibs());
+            System.out.println("Remapping from 'official' to '" + namespace + "'");
+            RemapperUtils.remap(newJar.toPath(), mod.getFile().toPath(),
+                    RemapperUtils.getMappings("official", namespace),
+                    FileLocator.getLibs(args));
 
             jarFs = FileSystems.newFileSystem(newJar.toPath(), null);
 
@@ -78,9 +85,9 @@ public class FabricTransformer implements Runnable {
             removeMixinLib(jarFs);
             ModManifest.injectManifest(mod.getVersion(), jarFs);
             mod.getFile().deleteOnExit();
-            FabricMod.success = true;
+            System.out.println("Remap done.");
         } catch (Exception e) {
-            FabricMod.success = false;
+            e.printStackTrace();
             throw new RuntimeException("Couldn't apply transformations", e);
         } finally {
             if (jarFs != null) {
@@ -91,6 +98,7 @@ public class FabricTransformer implements Runnable {
                 }
             }
         }
+        System.out.println("Transform done.");
     }
 
     private static void removeMixinLib(FileSystem zipfs) throws IOException {

@@ -18,7 +18,7 @@
 
 package eu.the5zig.fabric.remap;
 
-import net.fabricmc.loader.launch.common.MappingConfiguration;
+import eu.the5zig.fabric.TransformerMain;
 import net.fabricmc.loader.util.mappings.TinyRemapperMappingsHelper;
 import net.fabricmc.tinyremapper.IMappingProvider;
 import net.fabricmc.tinyremapper.OutputConsumerPath;
@@ -34,10 +34,11 @@ public class RemapperUtils {
         Files.deleteIfExists(out);
         TinyRemapper remapper = TinyRemapper.newRemapper()
                 .withMappings(mappings)
-                .rebuildSourceFilenames(true)
+                .resolveMissing(true)
                 .renameInvalidLocals(true)
+                .rebuildSourceFilenames(true)
                 .build();
-
+        remapper.getRemapper();
         OutputConsumerPath consumer = new OutputConsumerPath(out);
         consumer.addNonClassFiles(in);
         remapper.readInputs(in);
@@ -52,7 +53,6 @@ public class RemapperUtils {
     }
 
     public static IMappingProvider getMappings(String from, String to) {
-        MappingConfiguration config = new MappingConfiguration();
-        return TinyRemapperMappingsHelper.create(config.getMappings(), from, to);
+        return TinyRemapperMappingsHelper.create(TransformerMain.mappings.getMappings(), from, to);
     }
 }
